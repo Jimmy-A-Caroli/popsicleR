@@ -66,29 +66,29 @@ plotGene <- function(genelist, umi, dir){
               + plot_annotation(title = paste0(as.character(gene),"\n(expressed in ", vars1, " cells)"),
                                 theme = theme(plot.title = element_text(hjust = 0.5, face="bold", size =16))))
 
-        # gu1<-FeatureScatter(umi, feature1="nFeature_RNA", feature2="nCount_RNA", pt.size=0.2, cells=colnames(umi)[umi@meta.data[, expr_gene]=="TRUE"], col="#00BFC4") +
-        #   ggplot2::ggtitle(" ") +
-        #   theme(text=element_text(size=10),axis.title=element_text(size=10))+ NoLegend()
+        gu1<-FeatureScatter(umi, feature1="nFeature_RNA", feature2="nCount_RNA", pt.size=0.2, cells=colnames(umi)[umi@meta.data[, expr_gene]=="TRUE"], col="#00BFC4") +
+          ggplot2::ggtitle(" ") +
+          theme(text=element_text(size=10),axis.title=element_text(size=10))+ NoLegend()
 
         # number of genes vs single marker expression
 
-        mp1<-FeatureScatter(umi, feature1="nFeature_RNA", feature2=gene, pt.size=0.5, group.by=expr_gene) +
+        mp1<-FeatureScatter(umi, feature1="nFeature_RNA", feature2=gene, pt.size=0.2, group.by=expr_gene) +
           ggplot2::ylab(paste0(as.character(gene)," counts")) +
           ggplot2::ggtitle(" ") +
           guides(colour = guide_legend(paste0(as.character(gene),"+")))+
           theme(text=element_text(size=10),axis.title=element_text(size=10))
-        mp2<-FeatureScatter(umi, feature1="nFeature_RNA", feature2=gene, pt.size=0.5, group.by=expr_gene) +
+        mp2<-FeatureScatter(umi, feature1="nFeature_RNA", feature2=gene, pt.size=0.2, group.by=expr_gene) +
           ggplot2::ylab(paste0(as.character(gene)," counts")) +
           ggplot2::xlim(0,x.zoom.genes) +
           ggplot2::ggtitle(" ") +
           guides(colour = guide_legend(paste0(as.character(gene),"+")))+
           theme(text=element_text(size=10),axis.title=element_text(size=10))
-        print(patchwork::wrap_plots(mp1+mp2+plot_layout(guides = 'collect'))
+        print(patchwork::wrap_plots(mp1,mp2+plot_layout(guides = 'collect'), gu1, nrow=2,ncol=2)
               + plot_annotation(title = paste0(as.character(gene),"\n(expressed in ", vars1, " cells)"),
                                 theme = theme(plot.title = element_text(hjust = 0.5, face="bold", size =16))))
 
 
-        }
+      }
     }
     invisible(dev.off())})
   cat(paste0(silver("Plots saved in: ")),bold(silver("01.QC_Plots\\01e_QC_Scatter_Check.pdf \n")))
@@ -112,20 +112,20 @@ algo_plot_features <- function(dir, data, type, plot_name, organism){
       PreC <- FeaturePlot(data, pt.size=1, features="MALAT1", reduction=type, min.cutoff="q75") + ggplot2::xlab(paste0(toupper(prefix), " 1")) + ggplot2::ylab(paste0(toupper(prefix), " 2"))+
         ggplot2::ggtitle("MALAT1 top25%") +
         ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5)) else PreC<-ggplot()
-    if("GAPDH"%in%rownames(data))
-        PreD <- FeaturePlot(data, pt.size=1, features="GAPDH", reduction=type) + ggplot2::xlab(paste0(toupper(prefix), " 1")) + ggplot2::ylab(paste0(toupper(prefix), " 2")) else PreD<-ggplot()
+        if("GAPDH"%in%rownames(data))
+          PreD <- FeaturePlot(data, pt.size=1, features="GAPDH", reduction=type) + ggplot2::xlab(paste0(toupper(prefix), " 1")) + ggplot2::ylab(paste0(toupper(prefix), " 2")) else PreD<-ggplot()
   } else if (organism == "mouse") {
     if("Malat1"%in%rownames(data))
       PreC <- FeaturePlot(data, pt.size=1, features="Malat1", reduction=type, min.cutoff="q75") + ggplot2::xlab(paste0(toupper(prefix), " 1")) + ggplot2::ylab(paste0(toupper(prefix), " 2")) +
         ggplot2::ggtitle("Malat1 top25%") +
         ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5)) else PreC<-ggplot()
-    if("Gapdh"%in%rownames(data))
-      PreD <- FeaturePlot(data, pt.size=1, features="Gapdh", reduction=type) + ggplot2::xlab(paste0(toupper(prefix), " 1")) + ggplot2::ylab(paste0(toupper(prefix), " 2")) else PreD<-ggplot()
+        if("Gapdh"%in%rownames(data))
+          PreD <- FeaturePlot(data, pt.size=1, features="Gapdh", reduction=type) + ggplot2::xlab(paste0(toupper(prefix), " 1")) + ggplot2::ylab(paste0(toupper(prefix), " 2")) else PreD<-ggplot()
   }
   print(patchwork::wrap_plots(PreA, PreB, PreC, PreD, ncol=2))
 
   if ("doublets" %in% colnames(data@meta.data)){
-   p1 <- DimPlot(data, reduction=type, group.by = "doublets", pt.size=1, cols=c("lightgrey","black"))+
+    p1 <- DimPlot(data, reduction=type, group.by = "doublets", pt.size=1, cols=c("lightgrey","black"))+
       xlab(paste0(toupper(prefix), " 1")) + ylab(paste0(toupper(prefix), " 2"))
     p2 <- FeaturePlot(data, reduction=type, features="doublets_score", pt.size=1) +scale_colour_gradientn(colours=c("lightgrey", "red", "darkred", "black"))+
       xlab(paste0(toupper(prefix), " 1")) + ylab(paste0(toupper(prefix), " 2"))
@@ -181,47 +181,47 @@ SR_plots <- function(db_name, annot_db, data, directory, cluster_res) { ### aggi
     pdf(paste0(directory, "/04b_UMAP_", paste0(db_name,".cl.main.labels"), ".pdf"), width=12, height=10, useDingbats=FALSE)
 
     print(UMAPPlot(data, label=T, pt.size=1, group.by=cl_anal, repel=T) +
-              NoLegend() +
-              ggplot2::ggtitle(paste0(db_name," cluster annotation")) +
-              ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5))+ xlab("UMAP 1") + ylab("UMAP 2"))
+            NoLegend() +
+            ggplot2::ggtitle(paste0(db_name," cluster annotation")) +
+            ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5))+ xlab("UMAP 1") + ylab("UMAP 2"))
 
     invisible(dev.off())
 
     pdf(paste0(directory, "/04b_TSNE_", paste0(db_name,".cl.main.labels"), ".pdf"), width=12, height=10, useDingbats=FALSE)
     print(DimPlot(data, reduction="tsne", group.by=cl_anal, label=T, pt.size=1, repel=T) +
-              NoLegend() +
-              ggplot2::ggtitle(paste0(db_name," cluster annotation")) +
-              ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5))+xlab("TSNE 1") + ylab("TSNE 2"))
+            NoLegend() +
+            ggplot2::ggtitle(paste0(db_name," cluster annotation")) +
+            ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5))+xlab("TSNE 1") + ylab("TSNE 2"))
     invisible(dev.off())
 
   } else {
-  cl_analyses<-c()
-  for (res.i in cluster_res) {
-    sel_cluster<-paste0("RNA_snn_res.",res.i)
-    var.cl <- SingleR(test=data@assays$RNA@data, ref=annot_db, labels=annot_db$label.main, method="cluster", clusters=data@meta.data[[sel_cluster]])
-    cl_anal <- paste0(db_name,".cl.main.labels.res",res.i)
-    data[[cl_anal]] <- paste0(data[[]][[sel_cluster]], ":", var.cl$labels[match(data[[]][[sel_cluster]], rownames(var.cl))])
-    data@meta.data[[cl_anal]]<-factor(data@meta.data[[cl_anal]], levels=mixedsort(unique(data@meta.data[[cl_anal]])))
-    cl_analyses<-c(cl_analyses,cl_anal)
-  } #end for
+    cl_analyses<-c()
+    for (res.i in cluster_res) {
+      sel_cluster<-paste0("RNA_snn_res.",res.i)
+      var.cl <- SingleR(test=data@assays$RNA@data, ref=annot_db, labels=annot_db$label.main, method="cluster", clusters=data@meta.data[[sel_cluster]])
+      cl_anal <- paste0(db_name,".cl.main.labels.res",res.i)
+      data[[cl_anal]] <- paste0(data[[]][[sel_cluster]], ":", var.cl$labels[match(data[[]][[sel_cluster]], rownames(var.cl))])
+      data@meta.data[[cl_anal]]<-factor(data@meta.data[[cl_anal]], levels=mixedsort(unique(data@meta.data[[cl_anal]])))
+      cl_analyses<-c(cl_analyses,cl_anal)
+    } #end for
 
-  pdf(paste0(directory, "/04b_UMAP_", paste0(db_name,".cl.main.labels"), ".pdf"), width=12, height=10, useDingbats=FALSE)
-  for (cl_anal in cl_analyses) {
-  print(UMAPPlot(data, label=T, pt.size=1, group.by=cl_anal, repel=T) +
-          NoLegend() +
-          ggplot2::ggtitle(paste0(db_name," cluster ",gsub(paste0(db_name,".cl.main.labels."),"",cl_anal)," annotation")) +
-          ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5))+ xlab("UMAP 1") + ylab("UMAP 2"))
-  }
-  invisible(dev.off())
+    pdf(paste0(directory, "/04b_UMAP_", paste0(db_name,".cl.main.labels"), ".pdf"), width=12, height=10, useDingbats=FALSE)
+    for (cl_anal in cl_analyses) {
+      print(UMAPPlot(data, label=T, pt.size=1, group.by=cl_anal, repel=T) +
+              NoLegend() +
+              ggplot2::ggtitle(paste0(db_name," cluster ",gsub(paste0(db_name,".cl.main.labels."),"",cl_anal)," annotation")) +
+              ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5))+ xlab("UMAP 1") + ylab("UMAP 2"))
+    }
+    invisible(dev.off())
 
-  pdf(paste0(directory, "/04b_TSNE_", paste0(db_name,".cl.main.labels"), ".pdf"), width=12, height=10, useDingbats=FALSE)
-  for (cl_anal in cl_analyses) {
-  print(DimPlot(data, reduction="tsne", group.by=cl_anal, label=T, pt.size=1, repel=T) +
-          NoLegend() +
-          ggplot2::ggtitle(paste0(db_name," cluster ",gsub(paste0(db_name,".cl.main.labels."),"",cl_anal)," annotation")) +
-          ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5))+xlab("TSNE 1") + ylab("TSNE 2"))
-  }
-  invisible(dev.off())
+    pdf(paste0(directory, "/04b_TSNE_", paste0(db_name,".cl.main.labels"), ".pdf"), width=12, height=10, useDingbats=FALSE)
+    for (cl_anal in cl_analyses) {
+      print(DimPlot(data, reduction="tsne", group.by=cl_anal, label=T, pt.size=1, repel=T) +
+              NoLegend() +
+              ggplot2::ggtitle(paste0(db_name," cluster ",gsub(paste0(db_name,".cl.main.labels."),"",cl_anal)," annotation")) +
+              ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5))+xlab("TSNE 1") + ylab("TSNE 2"))
+    }
+    invisible(dev.off())
   } #end else
 
   return(data)
@@ -263,12 +263,12 @@ DTP <- function(data, markers, annotation){
     markers.to.plot <- rev(x=markers.to.plot)
   }
   return(DotPlot(object=data, features=markers.to.plot, cols=c("white", "red"),
-                dot.scale=8, assay="RNA", group.by=annotation) + RotatedAxis() +
-          ggplot2::geom_vline(xintercept=intercepts, linetype="dashed", color="darkgrey") +
-          ggplot2::scale_y_discrete(expand = ggplot2::expansion(add = c(0.5,3.5))) + # gglot2 3.3
-          ggplot2::scale_x_discrete(expand = ggplot2::expansion(add = c(0.5,2))) + # gglot2 3.3
-          RotatedAxis() + ggplot2::xlab("marker") + ggplot2::ylab(annotation) +
-          ggplot2::annotate("text", x = mrk_x, y = mrk_y, label=names(markers), angle=head.angle, hjust = 0))
+                 dot.scale=8, assay="RNA", group.by=annotation) + RotatedAxis() +
+           ggplot2::geom_vline(xintercept=intercepts, linetype="dashed", color="darkgrey") +
+           ggplot2::scale_y_discrete(expand = ggplot2::expansion(add = c(0.5,3.5))) + # gglot2 3.3
+           ggplot2::scale_x_discrete(expand = ggplot2::expansion(add = c(0.5,2))) + # gglot2 3.3
+           RotatedAxis() + ggplot2::xlab("marker") + ggplot2::ylab(annotation) +
+           ggplot2::annotate("text", x = mrk_x, y = mrk_y, label=names(markers), angle=head.angle, hjust = 0))
 }
 
 four_plots <- function(data, redux) {
@@ -290,14 +290,14 @@ annotation_plot <- function(directory, graph_value, data, redux, annotation, fil
                   cells.highlight=row.names(data[[annotation]])[data[[annotation]][,annotation] %in% cell_type[l]],
                   cols.highlight="red", sizes.highlight=0.7, repel=T) + ggplot2::ggtitle(cell_type[l]) +
             ggplot2::theme(plot.title=ggplot2::element_text(hjust=0.5)) + NoLegend() +
-      ggplot2::xlab(paste0(redux, " 1")) + ggplot2::ylab(paste0(redux, " 2")))
+            ggplot2::xlab(paste0(redux, " 1")) + ggplot2::ylab(paste0(redux, " 2")))
   }
   invisible(dev.off())
 }
 #' @exportPattern "^[[:alpha:]]+"
 #' @importFrom magrittr "%>%"
 #' @export
-PrePlots <- function(sample, input_data, genelist, percentage=0.1, gene_filter=200, cellranger=TRUE, input_matrix=NULL, organism="human", out_folder=getwd()){
+PrePlots <- function(sample_name, input_data, genelist=NULL, percentage=0.1, gene_filter=200, cellranger=TRUE, organism=c("human","mouse"), out_folder=getwd()){
   ### Root directory
   root <- out_folder
   if (!file.exists(root)){dir.create(root, recursive=T)}
@@ -309,41 +309,38 @@ PrePlots <- function(sample, input_data, genelist, percentage=0.1, gene_filter=2
   ###   dataset loading   ###
   ###########################
   if (cellranger == TRUE){
-    umi_data <- Read10X(data.dir=input_data) #check if 10X data or not
+    umi_data <- Read10X(data.dir=input_data) #check if CellRanger output
   } else {
-    umi_data <- read.table(file=input_matrix, header=T, sep="\t", row.names=1) #check if 10X data or not
-  }
-  ### creation of a Seurat object
+    umi_data <- read.table(file=input_data, header=T, sep="\t", row.names=1)
+  } #else stop(red("Please check your input file. Must be a CellRanger output or a .txt matrix with gene names in the first column and cell names in the first row \n"))
+  #### creation of a Seurat object
   # Keep all genes expressed in >= ~0.1% of cells
   # Keep all cells with at least 200 detected genes
   n_cells <- round((ncol(umi_data)*percentage)/100)
   n_genes <- gene_filter
   # min.cells: Include features detected in at least this many cells
   # min.features: Include cells where at least this many features are detected
-  umi <- CreateSeuratObject(counts=umi_data, min.cells=n_cells, min.features=n_genes, project=sample)
+  umi <- CreateSeuratObject(counts=umi_data, min.cells=n_cells, min.features=n_genes, project=sample_name)
   Starting_Cells <- ncol(umi)
   #####################################
   ###	  calculation of QC metrics   ###
   #####################################
   ### calculate the percentage of mitochondria, ribosomal and dissociation genes
+  dissociation_genes <- c("ACTG1","ANKRD1","ARID5A","ATF3","ATF4","BAG3","BHLHE40","BRD2","BTG1","BTG2","CCNL1","CCRN4L","CEBPB","CEBPD","CEBPG","CSRNP1","CXCL1","CYR61","DCN","DDX3X","DDX5","DES","DNAJA1","DNAJB1","DNAJB4","DUSP1","DUSP8","EGR1","EGR2","EIF1","EIF5","ERF","ERRFI1","FAM132B","FOS","FOSB","FOSL2","GADD45A","GADD45G","GCC1","GEM","H3F3B","HIPK3","HSP90AA1","HSP90AB1","HSPA1A","HSPA1B","HSPA5","HSPA8","HSPB1","HSPE1","HSPH1","ID3","IDI1","IER2","IER3","IER5","IFRD1","IL6","IRF1","IRF8","ITPKC","JUN","JUNB","JUND","KCNE4","KLF2","KLF4","KLF6","KLF9","LITAF","LMNA","MAFF","MAFK","MCL1","MIDN","MIR22HG","MT1","MT2","MYADM","MYC","MYD88","NCKAP5L","NCOA7","NFKBIA","NFKBIZ","NOP58","NPPC","NR4A1","ODC1","OSGIN1","OXNAD1","PCF11","PDE4B","PER1","PHLDA1","PNP","PNRC1","PPP1CC","PPP1R15A","PXDC1","RAP1B","RASSF1","RHOB","RHOH","RIPK1","SAT1","SBNO2","SDC4","SERPINE1","SKIL","SLC10A6","SLC38A2","SLC41A1","SOCS3","SQSTM1","SRF","SRSF5","SRSF7","STAT3","TAGLN2","TIPARP","TNFAIP3","TNFAIP6","TPM3","TPPP3","TRA2A","TRA2B","TRIB1","TUBB4B","TUBB6","UBC","USP2","WAC","ZC3H12A","ZFAND5","ZFP36","ZFP36L1","ZFP36L2","ZYX")
   if(organism == 'human'){
-    dissociation_genes <- c("ACTG1","ANKRD1","ARID5A","ATF3","ATF4","BAG3","BHLHE40","BRD2","BTG1","BTG2","CCNL1","CCRN4L","CEBPB","CEBPD","CEBPG","CSRNP1","CXCL1","CYR61","DCN","DDX3X","DDX5","DES","DNAJA1","DNAJB1","DNAJB4","DUSP1","DUSP8","EGR1","EGR2","EIF1","EIF5","ERF","ERRFI1","FAM132B","FOS","FOSB","FOSL2","GADD45A","GADD45G","GCC1","GEM","H3F3B","HIPK3","HSP90AA1","HSP90AB1","HSPA1A","HSPA1B","HSPA5","HSPA8","HSPB1","HSPE1","HSPH1","ID3","IDI1","IER2","IER3","IER5","IFRD1","IL6","IRF1","IRF8","ITPKC","JUN","JUNB","JUND","KCNE4","KLF2","KLF4","KLF6","KLF9","LITAF","LMNA","MAFF","MAFK","MCL1","MIDN","MIR22HG","MT1","MT2","MYADM","MYC","MYD88","NCKAP5L","NCOA7","NFKBIA","NFKBIZ","NOP58","NPPC","NR4A1","ODC1","OSGIN1","OXNAD1","PCF11","PDE4B","PER1","PHLDA1","PNP","PNRC1","PPP1CC","PPP1R15A","PXDC1","RAP1B","RASSF1","RHOB","RHOH","RIPK1","SAT1","SBNO2","SDC4","SERPINE1","SKIL","SLC10A6","SLC38A2","SLC41A1","SOCS3","SQSTM1","SRF","SRSF5","SRSF7","STAT3","TAGLN2","TIPARP","TNFAIP3","TNFAIP6","TPM3","TPPP3","TRA2A","TRA2B","TRIB1","TUBB4B","TUBB6","UBC","USP2","WAC","ZC3H12A","ZFAND5","ZFP36","ZFP36L1","ZFP36L2","ZYX")
     dissociation_genes <- paste(dissociation_genes, collapse='|')
-  } else if(organism == 'mouse') {
-    dissociation_genes <- c("ACTG1","ANKRD1","ARID5A","ATF3","ATF4","BAG3","BHLHE40","BRD2","BTG1","BTG2","CCNL1","CCRN4L","CEBPB","CEBPD","CEBPG","CSRNP1","CXCL1","CYR61","DCN","DDX3X","DDX5","DES","DNAJA1","DNAJB1","DNAJB4","DUSP1","DUSP8","EGR1","EGR2","EIF1","EIF5","ERF","ERRFI1","FAM132B","FOS","FOSB","FOSL2","GADD45A","GADD45G","GCC1","GEM","H3F3B","HIPK3","HSP90AA1","HSP90AB1","HSPA1A","HSPA1B","HSPA5","HSPA8","HSPB1","HSPE1","HSPH1","ID3","IDI1","IER2","IER3","IER5","IFRD1","IL6","IRF1","IRF8","ITPKC","JUN","JUNB","JUND","KCNE4","KLF2","KLF4","KLF6","KLF9","LITAF","LMNA","MAFF","MAFK","MCL1","MIDN","MIR22HG","MT1","MT2","MYADM","MYC","MYD88","NCKAP5L","NCOA7","NFKBIA","NFKBIZ","NOP58","NPPC","NR4A1","ODC1","OSGIN1","OXNAD1","PCF11","PDE4B","PER1","PHLDA1","PNP","PNRC1","PPP1CC","PPP1R15A","PXDC1","RAP1B","RASSF1","RHOB","RHOH","RIPK1","SAT1","SBNO2","SDC4","SERPINE1","SKIL","SLC10A6","SLC38A2","SLC41A1","SOCS3","SQSTM1","SRF","SRSF5","SRSF7","STAT3","TAGLN2","TIPARP","TNFAIP3","TNFAIP6","TPM3","TPPP3","TRA2A","TRA2B","TRIB1","TUBB4B","TUBB6","UBC","USP2","WAC","ZC3H12A","ZFAND5","ZFP36","ZFP36L1","ZFP36L2","ZYX")
-    dissociation_genes <- tools::toTitleCase(tolower(dissociation_genes))
-    dissociation_genes <- paste(dissociation_genes, collapse='|')
-  }
-  #
-  if(organism == 'human'){
+    if (is.null(genelist)) genelist<-c("EPCAM","VIM", "COL1A1", "PECAM1", "PTPRC", "CD3D", "CD14")
     umi[["percent_mt"]] <- PercentageFeatureSet(umi, pattern = "^MT-")
     umi[["percent_ribo"]] <- PercentageFeatureSet(umi, pattern = '^RPL|^RPS|^MRPL|^MRPS')
     umi[["percent_disso"]] <- PercentageFeatureSet(umi, pattern = dissociation_genes)
   } else if(organism == 'mouse') {
+    dissociation_genes <- tools::toTitleCase(tolower(dissociation_genes))
+    dissociation_genes <- paste(dissociation_genes, collapse='|')
+    if (is.null(genelist)) genelist<-c("Epcam","Vim", "Col1a1", "Pecam1", "Ptprc", "Cd3d", "Cd14")
     umi[["percent_mt"]] <- PercentageFeatureSet(umi, pattern = "^mt-")
     umi[["percent_ribo"]] <- PercentageFeatureSet(umi, pattern ='^Rpl|^Rps|^Mrpl|^Mrps')
     umi[["percent_disso"]] <- PercentageFeatureSet(umi, pattern = dissociation_genes)
-  }
+  } else {stop("organism must be human or mouse")}
   ### Violin Plot on number of genes, number of UMI and fraction of mitochondrial genes
   cat(bold(green("\nPlotting QC Violin plots \n")))
   suppressWarnings({pdf(paste0(QC_dir, "01a_QC_violin_plots.pdf"), width=24, useDingbats=FALSE)
@@ -351,7 +348,7 @@ PrePlots <- function(sample, input_data, genelist, percentage=0.1, gene_filter=2
     vln2 <- popsicleR:::VLN(umi, 10, feats="nCount_RNA", colours= "tomato", 0.01)+ NoLegend() + theme(axis.text.x=element_text(angle=0, hjust=0.5)) + ggplot2::xlab("")
     vln3 <- popsicleR:::VLN(umi, 10, feats="percent_mt", colours= "dodgerblue", 0.01)+ NoLegend() + theme(axis.text.x=element_text(angle=0, hjust=0.5)) + ggplot2::xlab("")
     vln4 <- popsicleR:::VLN(umi, 10, feats="percent_ribo", colours= "yellow", 0.01)+ NoLegend() + theme(axis.text.x=element_text(angle=0, hjust=0.5)) + ggplot2::xlab("")
-    vln5 <- popsicleR:::VLN(umi, 10, feats="percent_disso", colours= "firebrick", 0.01)+ NoLegend() + theme(axis.text.x=element_text(angle=0, hjust=0.5)) + ggplot2::xlab("")
+    vln5 <- popsicleR:::VLN(umi, 10, feats="percent_disso", colours= "forestgreen", 0.01)+ NoLegend() + theme(axis.text.x=element_text(angle=0, hjust=0.5)) + ggplot2::xlab("")
     print(patchwork::wrap_plots(vln1 | vln2 | vln3 | vln4 | vln5 + plot_layout(guides = 'collect') + NoLegend()) +
             plot_annotation(theme=theme(plot.title = element_text(hjust = 0.5, face="bold"))))
     invisible(dev.off())})
@@ -381,7 +378,7 @@ PrePlots <- function(sample, input_data, genelist, percentage=0.1, gene_filter=2
       ggplot2::geom_density(size=0.5, alpha=0.2, color="darkgoldenrod3", fill="yellow") + ggplot2::ggtitle(plot.title) + guides(colour = guide_legend("Sample ID:"), fill = guide_legend("Sample ID:")) + theme(legend.title = element_text(face = "bold"),legend.title.align = 0.5) + theme(plot.title = element_text(hjust = 0.5, face = "bold")) + theme(axis.title.y = element_blank(),axis.text.y = element_blank(),axis.ticks.y = element_blank())
     plot.title <- "Dissociation Fraction"
     dissociation_fraction <- ggplot2::ggplot(umi@meta.data, ggplot2::aes(x=percent_disso, color=orig.ident, fill=orig.ident)) +
-      ggplot2::geom_density(size=0.5, alpha=0.2, color="red", fill="firebrick") + ggplot2::ggtitle(plot.title) + guides(colour = guide_legend("Sample ID:"), fill = guide_legend("Sample ID:")) + theme(legend.title = element_text(face = "bold"),legend.title.align = 0.5) + theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+      ggplot2::geom_density(size=0.5, alpha=0.2, color="darkgreen", fill="forestgreen") + ggplot2::ggtitle(plot.title) + guides(colour = guide_legend("Sample ID:"), fill = guide_legend("Sample ID:")) + theme(legend.title = element_text(face = "bold"),legend.title.align = 0.5) + theme(plot.title = element_text(hjust = 0.5, face = "bold"))
     print(patchwork::wrap_plots((mt_fraction + ribosomal_fraction) / dissociation_fraction + plot_layout(guides = 'collect') + NoLegend()) +
             plot_annotation(theme=theme(plot.title = element_text(hjust = 0.5, face="bold"))) + NoLegend())
     invisible(dev.off())})
@@ -390,11 +387,11 @@ PrePlots <- function(sample, input_data, genelist, percentage=0.1, gene_filter=2
   cat(bold(green("Plotting QC Scatter plots \n")))
   suppressWarnings({pdf(file.path(QC_dir, "01c_QC_Scatter_nGene_nUMI_MTf.pdf"), width=18, height=12, useDingbats=FALSE)
     plotA <- FeatureScatter(umi, feature1="nFeature_RNA", feature2="nCount_RNA", pt.size=0.5, cols="tomato") +  theme(plot.title=element_blank()) + NoLegend()
-    plotB <- FeatureScatter(umi, feature1="nFeature_RNA", feature2="percent_mt", pt.size=0.5, cols="tomato") +  theme(plot.title=element_blank()) + NoLegend()
+    plotB <- FeatureScatter(umi, feature1="nFeature_RNA", feature2="percent_mt", pt.size=0.5, cols="dodgerblue") +  theme(plot.title=element_blank()) + NoLegend()
     plotC <- FeatureScatter(umi, feature1="nCount_RNA", feature2="percent_mt", pt.size=0.5, cols="dodgerblue") +  theme(plot.title=element_blank()) + NoLegend()
-    plotD <- FeatureScatter(umi, feature1="nCount_RNA", feature2="percent_ribo", pt.size=0.5, cols="yellow") +  theme(plot.title=element_blank())+ NoLegend()
-    plotE <- FeatureScatter(umi, feature1="nCount_RNA", feature2="percent_disso", pt.size=0.5, cols="firebrick") +  theme(plot.title=element_blank())+ NoLegend()
-    print(patchwork::wrap_plots(plotA + plotB + ggExtra::ggMarginal(plotC, type="density", color="blue", fill="dodgerblue") + ggExtra::ggMarginal(plotD, type="density", color="darkgoldenrod3", fill="yellow") + ggExtra::ggMarginal(plotE, type="density", color="firebrick", fill="red") + plot_layout(guides = 'collect')+ NoLegend()) +
+    plotD <- FeatureScatter(umi, feature1="nFeature_RNA", feature2="percent_ribo", pt.size=0.5, cols="yellow") +  theme(plot.title=element_blank())+ NoLegend()
+    plotE <- FeatureScatter(umi, feature1="nFeature_RNA", feature2="percent_disso", pt.size=0.5, cols="forestgreen") +  theme(plot.title=element_blank())+ NoLegend()
+    print(patchwork::wrap_plots(plotA + ggExtra::ggMarginal(plotB, type="density", color="blue", fill="dodgerblue") + ggExtra::ggMarginal(plotC, type="density", color="blue", fill="dodgerblue") + ggExtra::ggMarginal(plotD, type="density", color="darkgoldenrod3", fill="yellow") + ggExtra::ggMarginal(plotE, type="density", color="darkgreen", fill="forestgreen") + plot_layout(guides = 'collect')+ NoLegend()) +
             plot_annotation(title = unique(as.character(umi@meta.data$orig.ident)), theme=theme(plot.title = element_text(hjust = 0.5, face="bold")), tag_levels = 'A') + NoLegend())
     invisible(dev.off())})
   cat(paste0(silver("Plots saved in: ")),bold(silver("01.QC_Plots\\01c_QC_Scatter_nGene_nUMI_MTf.pdf \n")))
@@ -429,7 +426,7 @@ FilterPlots <- function(UMI, G_RNA_low = 0, G_RNA_hi = Inf, U_RNA_low = 0, U_RNA
   umi$filtered <- umi$nFeature_RNA <= G_RNA_low | umi$nFeature_RNA >= G_RNA_hi | umi$percent_mt >= percent_mt_hi | umi$nCount_RNA >=  U_RNA_hi | umi$nCount_RNA <=  U_RNA_low | umi$percent_ribo >= percent_ribo_hi| umi$percent_disso >= percent_disso_hi
   cat(bold(green("The selected thresholds will filter",sum(umi$filtered) ,"cells\n")))
 
-    ### set thresholds vlines and hlines for ggplot
+  ### set thresholds vlines and hlines for ggplot
   genes.dn.lim <- ggplot2::geom_vline(xintercept=G_RNA_low, linetype="dashed", color="darkgrey")
   genes.up.lim <- ggplot2::geom_vline(xintercept=G_RNA_hi, linetype="dashed", color="darkgrey")
   #nUMI -> nCount_RNA
@@ -475,7 +472,7 @@ FilterPlots <- function(UMI, G_RNA_low = 0, G_RNA_hi = Inf, U_RNA_low = 0, U_RNA
       ggplot2::geom_density(size=0.5, alpha=0.2, color="darkgoldenrod3", fill="yellow") + ggplot2::ggtitle(plot.title) + theme(plot.title = element_text(hjust = 0.5, face ="bold")) + NoLegend() + theme(axis.title.y = element_blank(),axis.text.y = element_blank(),axis.ticks.y = element_blank()) + ribo.dn.lim
     plot.title <- "density Dissociation fraction"
     final6 <- ggplot2::ggplot(umi@meta.data, ggplot2::aes(x=percent_disso, color=orig.ident, fill=orig.ident)) +
-      ggplot2::geom_density(size=0.5, alpha=0.2, color="red", fill="firebrick") + ggplot2::ggtitle(plot.title) + theme(plot.title = element_text(hjust = 0.5, face ="bold")) + NoLegend() + theme(axis.title.y = element_blank(),axis.text.y = element_blank(),axis.ticks.y = element_blank()) + disso.dn.lim
+      ggplot2::geom_density(size=0.5, alpha=0.2, color="darkgreen", fill="forestgreen") + ggplot2::ggtitle(plot.title) + theme(plot.title = element_text(hjust = 0.5, face ="bold")) + NoLegend() + theme(axis.title.y = element_blank(),axis.text.y = element_blank(),axis.ticks.y = element_blank()) + disso.dn.lim
     print(patchwork::wrap_plots(final4 + final5 + final6 + plot_layout(guides = 'collect')))})
   invisible(dev.off())
   cat(paste0(silver("\nPlots saved in: ")),bold(silver("01.QC_Plots\\01f_final_Hist_plots.pdf \n")))
@@ -488,10 +485,10 @@ FilterPlots <- function(UMI, G_RNA_low = 0, G_RNA_hi = Inf, U_RNA_low = 0, U_RNA
       genes.dn.lim + genes.up.lim + mt.dn.lim.y + NoLegend()
     plot3 <- FeatureScatter(umi, feature1="nCount_RNA", feature2="percent_mt", pt.size = 0.3, group.by = "filtered")+ scale_color_manual(values = c("dodgerblue", "#666666")) + theme(plot.title=element_blank()) +
       umi.dn.lim + umi.up.lim + mt.dn.lim.y + NoLegend()
-    plot4 <- FeatureScatter(umi, feature1="nCount_RNA", feature2="percent_ribo", pt.size = 0.3, group.by = "filtered")+ scale_color_manual(values = c("yellow", "#666666")) + theme(plot.title=element_blank()) +
-      umi.dn.lim + umi.up.lim + ribo.dn.lim.y + ggplot2::xlim(0,5000) + NoLegend()
-    plot5 <- FeatureScatter(umi, feature1="nCount_RNA", feature2="percent_disso", pt.size = 0.3, group.by = "filtered")+ scale_color_manual(values = c("firebrick", "#666666")) + theme(plot.title=element_blank()) +
-      umi.dn.lim + umi.up.lim + disso.dn.lim.y + ggplot2::xlim(0,5000) + NoLegend()
+    plot4 <- FeatureScatter(umi, feature1="nFeature_RNA", feature2="percent_ribo", pt.size = 0.3, group.by = "filtered")+ scale_color_manual(values = c("yellow", "#666666")) + theme(plot.title=element_blank()) +
+      genes.dn.lim + genes.up.lim + ribo.dn.lim.y  + NoLegend()
+    plot5 <- FeatureScatter(umi, feature1="nFeature_RNA", feature2="percent_disso", pt.size = 0.3, group.by = "filtered")+ scale_color_manual(values = c("forestgreen", "#666666")) + theme(plot.title=element_blank()) +
+      genes.dn.lim + genes.up.lim + disso.dn.lim.y  + NoLegend()
     print(patchwork::wrap_plots(plot1 | plot2 + plot3 + plot4 + plot5+ plot_layout(guides = 'collect') + NoLegend()))
     invisible(dev.off())})
   cat(paste0(silver("Plots saved in: ")),bold(silver("01.QC_Plots\\01g_final_Scatter_plots.pdf \n")))
@@ -535,8 +532,8 @@ CalculateDoublets <- function(UMI, dbs_thr='none', dbs_remove=TRUE, out_folder=g
     highlight_labels <- list("doublet"= WhichCells(UMI2, idents = TRUE), "singlet"= WhichCells(UMI2, idents = FALSE))
     cat(bold(green("Plotting doublets UMAP \n")))
     pdf(paste0(QC_dir,"/01h_doublets_umap.pdf"),15,8, useDingbats=FALSE)
-    p1 <- DimPlot(UMI2, reduction="umap", group.by = "doublets", pt.size=0.5, cols=c("lightgrey"), cells.highlight = highlight_labels, cols.highlight = "black")
-    p2 <- FeaturePlot(UMI2, reduction="umap", features="doublets_score", pt.size=0.5) +scale_colour_gradientn(colours=c("lightgrey", "red", "darkred", "black"))
+    p1 <- DimPlot(UMI2, reduction="umap", group.by = "doublets", pt.size=0.5, cols=c("lightgrey"), cells.highlight = highlight_labels, cols.highlight = "black")+ ggplot2::xlab("UMAP 1") +ggplot2::ylab("UMAP 2")
+    p2 <- FeaturePlot(UMI2, reduction="umap", features="doublets_score", pt.size=0.5) +scale_colour_gradientn(colours=c("lightgrey", "red", "darkred", "black"))+ ggplot2::xlab("UMAP 1") +ggplot2::ylab("UMAP 2")
     print(patchwork::wrap_plots(p1 | p2 + plot_layout(guides = 'collect')))
     dev.off()
     cat(paste0(silver("Plots saved in: ")),bold(silver("01.QC_Plots\\01h_doublets_umap.pdf \n")))
@@ -585,15 +582,15 @@ Normalize <- function(UMI, variable_genes=2000, out_folder=getwd()){
 }
 
 #' @export
-ApplyRegression <- function(UMI, organism='human', variables='none', explore_PC=FALSE,  out_folder=getwd()){
+ApplyRegression <- function(UMI, organism=c("human","mouse"), variables='none', explore_PC=FALSE,  out_folder=getwd()){
 
-  if(all(variables!='none') & !all(variables %in% colnames(UMI@meta.data))) {stop("specified variables are not in metadata")}
+  if(all(variables!='none') & !all(variables %in% colnames(UMI@meta.data))) {stop(red("ERROR: Specified variables are not in metadata field"))}
   PP_dir <- file.path(out_folder,"02.PreProcessing")
   suppressWarnings(if (!file.exists(PP_dir)){dir.create(PP_dir, recursive=T)})
 
   if(!all(c("S.Score", "G2M.Score")%in%colnames(UMI@meta.data))){
     cat(bold(green("Calculating Cell Cycle Score \n")))
-     if(organism == 'human') {
+    if(organism == 'human') {
       cc.genes$s.genes <- intersect(cc.genes$s.genes, row.names(UMI@assays$RNA@counts))
       cc.genes$g2m.genes <- intersect(cc.genes$g2m.genes, row.names(UMI@assays$RNA@counts))
       UMI <- CellCycleScoring(UMI, s.features=cc.genes$s.genes, g2m.features=cc.genes$g2m.genes, set.ident=T)
@@ -609,21 +606,21 @@ ApplyRegression <- function(UMI, organism='human', variables='none', explore_PC=
   ### scaling and regression
   all.genes <- rownames(UMI)
   if (all(variables == 'none')){
-  cycle.dir <- file.path(PP_dir,paste0("No_Regression"))
-  suppressWarnings(if (!file.exists(cycle.dir)){dir.create(cycle.dir)})
-  UMI <- ScaleData(object=UMI, features=all.genes)
-  ### perform PCA on the scaled data.
-  UMI <- suppressMessages(RunPCA(UMI, features=UMI[["RNA"]]@var.features, npcs=30, do.print=F, verbose=FALSE))
-  UMI2 <- suppressMessages(RunTSNE(UMI, dims = 1:20))
-  UMI2 <- suppressWarnings(RunUMAP(UMI2, dims = 1:20, verbose=FALSE))
-  ### Single pdf with 3 pages, 4 plots per page
-  cat(bold(green("Plotting dimensional reduction graphs with no regression \n")))
-  pdf(file.path(cycle.dir, "/02c_DimReduction_NoRegression.pdf"), width=14, height=12, useDingbats=FALSE)
-  popsicleR:::four_plots(UMI2, "pca")
-  popsicleR:::four_plots(UMI2, "tsne")
-  popsicleR:::four_plots(UMI2, "umap")
-  invisible(dev.off())
-  cat(paste0(silver("Plots saved in: ")),bold(silver("02.PreProcessing dedicated subfolder \n")))
+    cycle.dir <- file.path(PP_dir,paste0("No_Regression"))
+    suppressWarnings(if (!file.exists(cycle.dir)){dir.create(cycle.dir)})
+    UMI <- ScaleData(object=UMI, features=all.genes)
+    ### perform PCA on the scaled data.
+    UMI <- suppressMessages(RunPCA(UMI, features=UMI[["RNA"]]@var.features, npcs=30, do.print=F, verbose=FALSE))
+    UMI2 <- suppressMessages(RunTSNE(UMI, dims = 1:20))
+    UMI2 <- suppressWarnings(RunUMAP(UMI2, dims = 1:20, verbose=FALSE))
+    ### Single pdf with 3 pages, 4 plots per page
+    cat(bold(green("Plotting dimensional reduction graphs with no regression \n")))
+    pdf(file.path(cycle.dir, "/02c_DimReduction_NoRegression.pdf"), width=14, height=12, useDingbats=FALSE)
+    popsicleR:::four_plots(UMI2, "pca")
+    popsicleR:::four_plots(UMI2, "tsne")
+    popsicleR:::four_plots(UMI2, "umap")
+    invisible(dev.off())
+    cat(paste0(silver("Plots saved in: ")),bold(silver("02.PreProcessing dedicated subfolder \n")))
   } else {
     cycle.dir <- file.path(PP_dir,paste0("Regression_on_",paste(unlist(variables), collapse='_')))
     suppressWarnings(if (!file.exists(cycle.dir)){dir.create(cycle.dir)})
@@ -665,15 +662,15 @@ ApplyRegression <- function(UMI, organism='human', variables='none', explore_PC=
     print(ElbowPlot(object=UMI, ndims=30))
     invisible(dev.off())
     cat(paste0(silver("Plots saved in: ")),bold(silver("02.PreProcessing dedicated subfolder \n")))
-    cat(paste0(cyan("\nOnce identified the PCs number to use in your analysis, perform clustering running "),bold(cyan("Calculate Cluster \n"))))
+    cat(paste0(cyan("\nOnce identified the PCs number to use in your analysis, perform clustering running "),bold(cyan("CalculateCluster \n"))))
   }
 
   return(UMI)
 }
 
 #' @export
-CalculateCluster <- function(UMI, dim_pca, organism="human", marker.list='none', PCA=TRUE, cluster_res=0.8, out_folder=getwd()){
-  #dimpca --> numero di principal components
+CalculateCluster <- function(UMI, dim_pca, organism=c("human","mouse"), marker.list='none', PCA=TRUE, cluster_res=0.8, out_folder=getwd()){
+  #dimpca --> number of principal components
   #cluster_res --> cluster resolution (default 0.8)
 
 
@@ -730,7 +727,7 @@ CalculateCluster <- function(UMI, dim_pca, organism="human", marker.list='none',
       markers <-read.table(paste0(signature_dir,"/",marker.list),sep="\t",header=T)
       marker.list <- as.list(markers)
     }
-  }
+  }else {stop("organism must be human or mouse")}
   ### Performing scaling and clustering based on provided inputs
   UMI <- RunUMAP(UMI, dims = 1:dim_pca, verbose=FALSE)
   UMI <- RunTSNE(UMI, dims = 1:dim_pca, verbose=FALSE)
@@ -750,14 +747,14 @@ CalculateCluster <- function(UMI, dim_pca, organism="human", marker.list='none',
 
   ### clustree analysis
   if (length(cluster_res)>1) {
-  metadata<-UMI@meta.data
-  for (res in cluster_res) {
-    res_col<-paste0("RNA_snn_res.",res)
-    metadata[,res_col]<-as.numeric(as.character(metadata[,res_col]))
-  }
-  pdf(file.path(Cluster_dir,paste0("03b_clustree_resolution_analysis.pdf")), width=14, height=10, useDingbats=FALSE)
-  print(clustree(metadata, prefix = "RNA_snn_res."))
-  dev.off()
+    metadata<-UMI@meta.data
+    for (res in cluster_res) {
+      res_col<-paste0("RNA_snn_res.",res)
+      metadata[,res_col]<-as.numeric(as.character(metadata[,res_col]))
+    }
+    pdf(file.path(Cluster_dir,paste0("03b_clustree_resolution_analysis.pdf")), width=14, height=10, useDingbats=FALSE)
+    print(clustree(metadata, prefix = "RNA_snn_res."))
+    dev.off()
   }
 
   ### phylo tree
@@ -772,7 +769,7 @@ CalculateCluster <- function(UMI, dim_pca, organism="human", marker.list='none',
 
   ### plot cell features
   for(algo in algos){
-  algo_plot_features(Cluster_dir, UMI, algo, "03d", organism)
+    algo_plot_features(Cluster_dir, UMI, algo, "03d", organism)
   }
 
   ### Finding differentially expressed features (cluster biomarkers)
@@ -796,13 +793,13 @@ CalculateCluster <- function(UMI, dim_pca, organism="human", marker.list='none',
       genes <- top.markers.2$gene[top.markers.2$cluster == cluster]
       vg1 <- popsicleR:::VLN(UMI, feats=genes[1], point =FALSE) + ggplot2::geom_boxplot(width=0.1, outlier.shape=NA) + NoLegend() + ggplot2::xlab("")
       if (length(genes)==2) {
-      vg2 <- popsicleR:::VLN(UMI, feats=genes[2], point =FALSE) +
-        ggplot2::geom_boxplot(width=0.1, outlier.shape=NA) +
-        NoLegend() +
-        ggplot2::xlab(paste("Top markers for cluster",cluster, "@ res", cluster_res)) } else {
-          vg1<-vg1+xlab(paste("Top markers for cluster",cluster, "@ res", cluster_res))
-          vg2<-ggplot()
-        }
+        vg2 <- popsicleR:::VLN(UMI, feats=genes[2], point =FALSE) +
+          ggplot2::geom_boxplot(width=0.1, outlier.shape=NA) +
+          NoLegend() +
+          ggplot2::xlab(paste("Top markers for cluster",cluster, "@ res", cluster_res)) } else {
+            vg1<-vg1+xlab(paste("Top markers for cluster",cluster, "@ res", cluster_res))
+            vg2<-ggplot()
+          }
       print(patchwork::wrap_plots(vg1, vg2, ncol=1))
     }
     invisible(dev.off())
@@ -816,10 +813,10 @@ CalculateCluster <- function(UMI, dim_pca, organism="human", marker.list='none',
         ggplot2::xlab("UMAP 1") +
         ggplot2::ylab(paste0("Top markers for cluster ",cluster," @ res ", cluster_res,"\nUMAP 2"))
       if (length(genes)==2) {
-      vg2 <- FeaturePlot(UMI, features=genes[2], reduction="umap", ncol=1) +
-        NoLegend() +
-        ggplot2::xlab("UMAP 1") +
-        ggplot2::ylab("UMAP 2") } else {vg2<-ggplot()}
+        vg2 <- FeaturePlot(UMI, features=genes[2], reduction="umap", ncol=1) +
+          NoLegend() +
+          ggplot2::xlab("UMAP 1") +
+          ggplot2::ylab("UMAP 2") } else {vg2<-ggplot()}
       print(patchwork::wrap_plots(vg1, vg2, ncol=2))
     }
     invisible(dev.off())
@@ -833,10 +830,10 @@ CalculateCluster <- function(UMI, dim_pca, organism="human", marker.list='none',
         ggplot2::xlab("tSNE 1") +
         ggplot2::ylab(paste0("Top markers for cluster ",cluster," @ res ", cluster_res,"\ntSNE 2"))
       if (length(genes)==2) {
-      vg2 <- FeaturePlot(UMI, features=genes[2], reduction="tsne", ncol=1) +
-        NoLegend() +
-        ggplot2::xlab("TSNE 1") +
-        ggplot2::ylab("TSNE 2")} else {vg2<-ggplot()}
+        vg2 <- FeaturePlot(UMI, features=genes[2], reduction="tsne", ncol=1) +
+          NoLegend() +
+          ggplot2::xlab("TSNE 1") +
+          ggplot2::ylab("TSNE 2")} else {vg2<-ggplot()}
       print(patchwork::wrap_plots(vg1, vg2, ncol=2))
     }
     invisible(dev.off())
@@ -845,9 +842,9 @@ CalculateCluster <- function(UMI, dim_pca, organism="human", marker.list='none',
     ### expression heatmap
     top.markers.10 <- umi.markers %>% dplyr::group_by(cluster) %>% dplyr::top_n(n = 10, wt = get(FC_col))
     pdf(paste0(Cluster_dir, "/03g_heatmap_top.markers.pdf"), width=18, height=5+(0.5*length(levels((umi.markers$cluster)))), useDingbats=FALSE)
-    print(DoHeatmap(UMI, features=top.markers.10$gene, slot="data") + NoLegend())
+    print(DoHeatmap(UMI, features=top.markers.10$gene, slot="scale.data") + NoLegend())
     invisible(dev.off())
-   }
+  }
 
   ### Visualize given marker list on a dimensional reduction plot
 
@@ -867,10 +864,10 @@ CalculateCluster <- function(UMI, dim_pca, organism="human", marker.list='none',
   ### visualize common markers by violin plots
   pdf(paste0(Cluster_dir, "/03i_Violin_marker_list.pdf"), height = vln_h, width= vln_w, useDingbats=FALSE)
   for (res.i in cluster_res){
-  print(VlnPlot(UMI, features=unlist(marker.list), ncol=4,pt.size=F, group.by=paste0("RNA_snn_res.",res.i)))
+    print(VlnPlot(UMI, features=unlist(marker.list), ncol=4,pt.size=F, group.by=paste0("RNA_snn_res.",res.i)))
   }
   dev.off()
- # manca  valore risoluzione nel plot
+  # manca  valore risoluzione nel plot
 
   markers.unlisted <-as.character(unlist(marker.list))
   width_calc<-floor(length(markers.unlisted)/2.5)
@@ -890,12 +887,12 @@ CalculateCluster <- function(UMI, dim_pca, organism="human", marker.list='none',
 }
 
 #' @export
-MakeAnnotation <- function(UMI, organism, marker.list='none', thresh=20, cluster_res=NULL, out_folder=getwd()){
+MakeAnnotation <- function(UMI, organism=c("human","mouse"), marker.list='none', thresh=20, cluster_res=NULL, out_folder=getwd()){
   Annot_dir <- paste0(out_folder,"/04.Annotation/")
   if(!is.null(cluster_res)&!all(paste0("RNA_snn_res.",cluster_res)%in%colnames(UMI@meta.data))) {
     #cat(paste0(red("Clustering at selected resolution has not been calculated yet. Please change resolution or run "),bold(red("CalculateCluster \n"))))
     stop("Clustering at selected resolution has not been calculated yet. Please change resolution or run CalculateCluster")
-    }
+  }
 
   if (!file.exists(Annot_dir)){dir.create(Annot_dir, recursive=T)}
   if(organism == 'human'){
@@ -950,6 +947,22 @@ MakeAnnotation <- function(UMI, organism, marker.list='none', thresh=20, cluster
       print(popsicleR:::DTP(UMI, marker.list, single_annot))
       invisible(dev.off())
     }
+    ### corrplot
+    for(single_annot in annotations){
+
+      pdf(paste0(Annot_dir, paste0("04e_Corrplot_clusters_vs_", single_annot, ".pdf")), width=8, height=7, useDingbats=FALSE)
+      for (res in cluster_res ) {
+        res.col<-paste0("RNA_snn_res.",res)
+        clusters<-UMI@meta.data[,res.col]
+        labels<-UMI@meta.data[,single_annot]
+        a <- table(clusters,labels)
+        a_freq<-a/rowSums(a)
+        corrplot(t(a_freq),is.corr=F,tl.col='black',title = paste('clusters @',res, "vs", single_annot),  mar=c(0,0,2,0), method="pie", tl.srt=45)
+      }
+      invisible(dev.off())
+    }
+
+
     cat(paste0(silver("Plots saved in: ")),bold(silver("\\04.Annotation\\")), silver("folder, with the prefixes 04c and 04d \n"))
   } else if(organism == 'mouse') {
     require("scMCA")
@@ -994,11 +1007,16 @@ MakeAnnotation <- function(UMI, organism, marker.list='none', thresh=20, cluster
     width_calc<-floor(length(markers.unlisted)/2.5)
     width_sig<-ifelse(width_calc<10, 10, width_calc)
     width_sig<-ifelse(width_sig>16, 16, width_sig)
+
+    ### singleR with ImmGen
+    Ig.se <- suppressMessages(SingleR::ImmGenData())
+    UMI <- popsicleR:::SR_plots("ImmGen", Ig.se, UMI, Annot_dir, cluster_res)
+
+    ### run scMCA
     matrice_norm <- as.matrix(GetAssayData(UMI))
     mca_result <- scMCA(scdata = matrice_norm, numbers_plot = 3)
     scMCA_assignment <- mca_result$scMCA
-    Ig.se <- suppressMessages(SingleR::ImmGenData())
-    ### Loaded reference datasets (ImmGen)
+
     ### Performing data simplification
     ### simplification of labels
     simple_assignment <- do.call(rbind,strsplit(scMCA_assignment,"(", fixed=T))
@@ -1022,6 +1040,7 @@ MakeAnnotation <- function(UMI, organism, marker.list='none', thresh=20, cluster
             ggplot2::guides(col=ggplot2::guide_legend(ncol=1)))
     invisible(dev.off())
     cat(paste0(silver("Plots saved in: ")),bold(silver("\\04.Annotation\\")), silver("folder, with the prefix 04a \n"))
+
     ### plot each cell type
     clean_labels <- UMI$scMCA_simple
     ultra_rare <- names(table(clean_labels)[table(clean_labels) < thresh])
@@ -1029,29 +1048,46 @@ MakeAnnotation <- function(UMI, organism, marker.list='none', thresh=20, cluster
     UMI$clean_labels <- clean_labels
 
     ### Plotting annotated populations localization in TSNE, UMAP and PCA. [scMCA]
-    cat(bold(green("Plotting scMCA dimensional reduction graphs for each population \n")))
-    #popsicleR:::annotation_plot(Annot_dir, "04c_", UMI, "PCA", "clean_labels", "scMCA_CellPopulations")
+    cat(bold(green("Plotting dimensional reduction graphs for each population \n")))
     popsicleR:::annotation_plot(Annot_dir, "04c_", UMI, "UMAP", "clean_labels", "scMCA_CellPopulations")
     popsicleR:::annotation_plot(Annot_dir, "04c_", UMI, "TSNE", "clean_labels", "scMCA_CellPopulations")
-    cat(paste0(silver("Plots saved in: ")),bold(silver("\\04.Annotation\\"), silver("folder, with the prefix 04c \n")))
 
-    ## Custom DotPlot for immune markers
-    pdf(paste0(Annot_dir, "/04d_DotPlot_Immune_Markers_scMCA.pdf"), width=width_sig, height=10, useDingbats=FALSE)
-    popsicleR:::DTP(UMI, marker.list, 'scMCA_simple')
+    # Plotting annotated populations localization in TSNE, UMAP and PCA. [ImmGen]
+    annotations <- c("ImmGen.sc.main.labels")
+     for(single_annot in annotations){
+      popsicleR:::annotation_plot(Annot_dir, "04c_", UMI, "UMAP", single_annot, "CellPopulations")
+      popsicleR:::annotation_plot(Annot_dir, "04c_", UMI, "TSNE", single_annot, "CellPopulations")
+      pdf(paste0(Annot_dir, paste0("04d_DotPlot_Markers_", single_annot, ".pdf")), width=width_sig, height=10, useDingbats=FALSE)
+      print(popsicleR:::DTP(UMI, marker.list, single_annot))
+      invisible(dev.off())
+    }
+
+    ## Custom DotPlot for markers
+    pdf(paste0(Annot_dir, "/04d_DotPlot_Markers_scMCA.pdf"), width=width_sig, height=10, useDingbats=FALSE)
+    print(popsicleR:::DTP(UMI, marker.list, "scMCA_simple"))
     invisible(dev.off())
 
-    UMI <- popsicleR:::SR_plots("ImmGen", Ig.se, UMI, Annot_dir, cluster_res)
+    cat(paste0(silver("Plots saved in: ")),bold(silver("\\04.Annotation\\"), silver("folder, with the prefix 04c and 04d\n")))
 
-    # Plotting annotated populations localization in TSNE, UMAP and PCA. [ImmGen
-    annotations <- c("ImmGen.sc.main.labels")
-    cat(bold(green("Plotting ImmGen dimensional reduction graphs for each population \n")))
-    for(single_annot in annotations){
-      #popsicleR:::annotation_plot(Annot_dir, "04e_", UMI, "PCA", single_annot, "CellPopulations")
-      popsicleR:::annotation_plot(Annot_dir, "04e_", UMI, "UMAP", single_annot, "CellPopulations")
-      popsicleR:::annotation_plot(Annot_dir, "04e_", UMI, "TSNE", single_annot, "CellPopulations")
+
+    ### corrplot
+    for(single_annot in c(annotations,"scMCA_simple")){
+
+      pdf(paste0(Annot_dir, paste0("04e_Corrplot_clusters_vs_", single_annot, ".pdf")), width=8, height=7, useDingbats=FALSE)
+      for (res in cluster_res ) {
+        res.col<-paste0("RNA_snn_res.",res)
+        clusters<-UMI@meta.data[,res.col]
+        labels<-UMI@meta.data[,single_annot]
+        a <- table(clusters,labels)
+        a_freq<-a/rowSums(a)
+        corrplot(t(a_freq),is.corr=F,tl.col='black',title = paste('clusters @',res, "vs", single_annot),  mar=c(0,0,2,0), method="pie", tl.srt=45)
+      }
+      invisible(dev.off())
     }
-    cat(paste0(silver("Plots saved in: ")),bold(silver("\\04.Annotation\\")), silver("folder, with the prefix 04e \n"))
-  }
+
+
+    #cat(paste0(silver("Plots saved in: ")),bold(silver("\\04.Annotation\\")), silver("folder\n"))
+  }else {stop("organism must be human or mouse")}
   return(UMI)
 }
 

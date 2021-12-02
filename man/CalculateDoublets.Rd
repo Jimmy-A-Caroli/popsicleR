@@ -3,7 +3,7 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{CalculateDoublets}
 \description{
-Calculate and highlights doublets in the provided dataset. Generate also plots to show distribution and percentage of them. 
+Calculate and highlights doublets in the provided dataset. Generate also plots to show distribution and percentage of them.
 }
 \usage{
 CalculateDoublets(UMI, dbs_thr='none', dbs_remove=TRUE, out_folder=getwd())
@@ -26,9 +26,11 @@ CalculateDoublets(UMI, dbs_thr='none', dbs_remove=TRUE, out_folder=getwd())
 %% ...
 }
 \references{
-%% ~put references to the literature/web site here ~
+The main function used to identify doublets has been modified from the R code provided at https://rdrr.io/github/ChengxiangQiu/rscrublet/ by Chengxiang Qiu \email{<cxqiu@uw.edu>} based on the method implemented in the python module Scrublet
+
+Samuel L. Wolock, Romain Lopez, Allon M. Klein, "Scrublet: Computational Identification of Cell Doublets in Single-Cell Transcriptomic Data" (2019). \emph{Cell System}, Volume \bold{8},--281-291--.e9,ISSN 2405-4712,\url{https://doi.org/10.1016/j.cels.2018.11.005.}
 }
-\author{Jimmy Caroli}
+\author{Jimmy Caroli, Francesco Grandi, Chengxiang Qiu}
 \note{
 %%  ~~further notes~~
 }
@@ -39,7 +41,11 @@ CalculateDoublets(UMI, dbs_thr='none', dbs_remove=TRUE, out_folder=getwd())
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-CalculateDoublets(umi_object)
+## first run:
+umi_object <- CalculateDoublets(umi_object, dbs_thr='none', dbs_remove=FALSE)
+
+## second run:
+CalculateDoublets(umi_object, dbs_thr=0.22, dbs_remove=FALSE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
